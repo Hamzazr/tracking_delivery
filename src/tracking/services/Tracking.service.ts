@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios'
 import { Observable, catchError, throwError } from 'rxjs';
+import { TrackingRequest } from '../models/trackingrequest.model';
 
 @Injectable()
 export class ServiceTracking {
@@ -77,27 +78,47 @@ export class ServiceTracking {
        
   }
 
+  async authToken(){
+
+      const formData = new URLSearchParams();
+      formData.append('grant_type', 'client_credentials');
+      formData.append('client_id', 'l7bfea77bc57c942ec915617cfc67456fd');
+      formData.append('client_secret', '95a03e4e16e649de9d3be8e468a992a4');
+  
+      try {
+        const response = await axios.post('https://apis-sandbox.fedex.com/oauth/token', formData, {
+          
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          }
+        })
+        console.log('Response:', response.data);
+        return response.data ["aceess_token"] ;
+    }catch(error){
+      console.error('Error:', error.message);
+      return "";
+    }
+  }
+
   //----------------------------------------------------New
 
 
-  private readonly myapi1 = 'l7bfea77bc57c942ec915617cfc67456fd';
-  private readonly trackingApiBaseUrl3 =  'https://apis-sandbox.fedex.com/track/v1/trackingnumbers';
+  private readonly token1 = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzY29wZSI6WyJDWFMtVFAiXSwiUGF5bG9hZCI6eyJjbGllbnRJZGVudGl0eSI6eyJjbGllbnRLZXkiOiJsN2JmZWE3N2JjNTdjOTQyZWM5MTU2MTdjZmM2NzQ1NmZkIn0sImF1dGhlbnRpY2F0aW9uUmVhbG0iOiJDTUFDIiwiYWRkaXRpb25hbElkZW50aXR5Ijp7InRpbWVTdGFtcCI6IjI0LVNlcC0yMDIzIDA2OjM0OjA1IEVTVCIsImdyYW50X3R5cGUiOiJjbGllbnRfY3JlZGVudGlhbHMiLCJhcGltb2RlIjoiU2FuZGJveCIsImN4c0lzcyI6Imh0dHBzOi8vY3hzYXV0aHNlcnZlci1zdGFnaW5nLmFwcC5wYWFzLmZlZGV4LmNvbS90b2tlbi9vYXV0aDIifSwicGVyc29uYVR5cGUiOiJEaXJlY3RJbnRlZ3JhdG9yX0IyQiJ9LCJleHAiOjE2OTU1NTg4NDUsImp0aSI6IjBmNjViM2QwLTQ1YjEtNDU4NS1iZTlmLWNhNDZkOWVjMzg3ZiJ9.LFcnjopeoiWF-1ddXSNm7UiEWLIf1_vU3lEt3rwoJBYDYF1cqBTZ_itSyCzgYQpCZKCkgqz4TVonGEwzhkhr9vAPhBvtfzEzPlZfnyyUr-kLpRYfATkpPyNNucXd2ML_4PQs4E7MLBnAABodOAAa-2_KAS1mOTe36dwbgzQ4U8a21k-_7RRh8mEHRnKhoDqgYd-66dNRwhsnb7Glv9g-T8zgg0NLdUsl1dIEouvKXvSp-isFm1Y6KbXC-W0M08R7cOLfUOIcsrcaJzW3c_L3dGDs35K7YiJZotXDjeS8NEYnAWzNZ_dwCQHsyEnVLpJkHz47d7f4cSoXYOVubPgdJjAtIycdxkfdzyUn8b8I9Tlfr8iddLOTyDYoy95mkX-dxL6plTLG3zOHwgiMoWLAmTOBaQYF5wEREtpblHJm7QTZc_NsMNHQ8ujtXRz_IYy3MU_eGlAv3Bk9olxfqYLFEjxWRuCihIdDBd7FYsJ2R1Q0gyE5ECEjxU9HtHhiRQmpMRtWF1jUkYnOZRg6xr4NvJLjRlz8G425Zs1pp_fbZ3S3T0LOPvmNG9CLR6JugnUMGdb3jQcvLR_95bmxcsO1Wa9tToGGkLig5GUgWHpJnEEoMDPSDpTSx0d3TCOEeVAebvLirk3FScBViGPq5PB3TtMKZNWa1x9QXJzT1W7kyXg';
 
-    async trackShipment(trackingNumbers: string[]) {
+
+    async trackShipment(trackingNumbers: TrackingRequest) {
     try {
-      const data = {
-        trackingNumbers: trackingNumbers,
-      };
-
+    
+      const datatoken = await this.authToken();
 
       const response = await axios.post(
         'https://apis-sandbox.fedex.com/track/v1/trackingnumbers',
-        data,
+        trackingNumbers,
         {
           headers: {
             'Content-Type': 'application/json',
             'X-locale': 'en_US',
-            Authorization: `Bearer ${this.myapi1}`, 
+            Authorization: `Bearer ${datatoken}`, 
           },
         }
       );

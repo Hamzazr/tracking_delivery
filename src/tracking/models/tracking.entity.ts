@@ -39,7 +39,7 @@ export class TrackingEntity {
     @Column()
     @IsEnum(TrackingStatus)
     status: TrackingStatus;
-
+    
     @Column({nullable: true})
     trackingstatus: string;
 

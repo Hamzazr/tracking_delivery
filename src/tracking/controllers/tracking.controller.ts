@@ -1,6 +1,8 @@
 import { Body, Controller, Get, HttpException, HttpStatus, Param, Post } from '@nestjs/common';
 import { ServiceTracking } from '../services/Tracking.service'
 import { Observable } from 'rxjs';
+import { Console } from 'console';
+import { TrackingRequest } from '../models/trackingrequest.model';
 
 @Controller('tracking')
 export class ControllerTracking {
@@ -29,12 +31,27 @@ export class ControllerTracking {
   //     return countries;
   // }
 
-  @Post('track-shipment')
-  async trackShipment(@Body() trackingNumbers: string[]) {
+  @Post('auth')
+  async authApi(@Body() formData: Record<string, any>){
     try {
+      console.log('Received form data:', formData);
+
+      // Process the form data and return a response
+      return { message: 'Form data received successfully', data: formData };
+    } catch (error) {
+      // Handle errors
+      console.error('Error:', error.message);
+      throw new Error('Form data submission failed');
+  }}
+
+  @Post('track-shipment')
+  async trackShipment(@Body() trackingNumbers: TrackingRequest) {
+    try {
+      console.debug(trackingNumbers);
       const shipmentStatus = await this.trackingService.trackShipment(trackingNumbers);
       return { status: 'success', data: shipmentStatus };
     } catch (error) {
+      console.error(error)
       return { status: 'error', message: 'Failed to retrieve shipment status' };
     }
   }
