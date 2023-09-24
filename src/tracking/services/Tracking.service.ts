@@ -79,7 +79,6 @@ export class ServiceTracking {
   }
 
   async authToken(){
-
       const formData = new URLSearchParams();
       formData.append('grant_type', 'client_credentials');
       formData.append('client_id', 'l7bfea77bc57c942ec915617cfc67456fd');
@@ -93,7 +92,8 @@ export class ServiceTracking {
           }
         })
         console.log('Response:', response.data);
-        return response.data ["aceess_token"] ;
+        console.log("###", response.data ["access_token"]);
+        return response.data ["access_token"] ;
     }catch(error){
       console.error('Error:', error.message);
       return "";
@@ -110,7 +110,7 @@ export class ServiceTracking {
     try {
     
       const datatoken = await this.authToken();
-
+      console.log( "kazzoun",datatoken);
       const response = await axios.post(
         'https://apis-sandbox.fedex.com/track/v1/trackingnumbers',
         trackingNumbers,
