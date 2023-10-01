@@ -1,8 +1,9 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, Query, Req, ValidationPipe } from '@nestjs/common';
 import { ServiceTracking } from '../services/Tracking.service'
 import { Observable } from 'rxjs';
 import { Console } from 'console';
 import { TrackingRequest } from '../models/trackingrequest.model';
+import { TrackResult } from '../models/latestStatusDetail.dto';
 
 @Controller('tracking')
 export class ControllerTracking {
@@ -31,18 +32,6 @@ export class ControllerTracking {
   //     return countries;
   // }
 
-  @Post('auth')
-  async authApi(@Body() formData: Record<string, any>){
-    try {
-      console.log('Received form data:', formData);
-
-      // Process the form data and return a response
-      return { message: 'Form data received successfully', data: formData };
-    } catch (error) {
-      // Handle errors
-      console.error('Error:', error.message);
-      throw new Error('Form data submission failed');
-  }}
 
   @Post('track-shipment')
   async trackShipment(@Body() trackingNumbers: TrackingRequest) {
@@ -50,11 +39,24 @@ export class ControllerTracking {
       console.debug(trackingNumbers);
       const shipmentStatus = await this.trackingService.trackShipment(trackingNumbers);
       return { status: 'success', data: shipmentStatus };
+
     } catch (error) {
       console.error(error)
       return { status: 'error', message: 'Failed to retrieve shipment status' };
     }
   }
+
+  // @Post()
+  // async trackShipment2(@Body(new ValidationPipe()) trackingNumbers: TrackingRequest): Promise<{ status: string, data: TrackResult }> {
+  //   try {
+  //     const shipmentStatus = await this.trackingService.trackShipment(trackingNumbers);
+  //     return { status: 'success', data: shipmentStatus };
+  //   } catch (error) {
+  //     return { status: 'error', message: 'Failed to retrieve shipment status2');
+  //      };
+  //   }
+  // }
+
 
     
     
