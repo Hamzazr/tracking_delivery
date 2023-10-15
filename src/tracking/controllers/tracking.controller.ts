@@ -35,14 +35,16 @@ export class ControllerTracking {
 
   @Post('track-shipment')
   async trackShipment(@Body() trackingNumbers: TrackingRequest) {
-    try {
+    try { 
       console.debug(trackingNumbers);
       const shipmentStatus = await this.trackingService.trackShipment(trackingNumbers);
+      console.log(shipmentStatus)
+
       return { status: 'success', data: shipmentStatus };
 
     } catch (error) {
-      console.error(error)
-      return { status: 'error', message: 'Failed to retrieve shipment status' };
+      console.log(error)
+      return { status: 'error', data: null };
     }
   }
 

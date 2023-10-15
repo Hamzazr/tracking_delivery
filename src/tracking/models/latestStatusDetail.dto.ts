@@ -1,12 +1,16 @@
 export class TrackResult{
 
-    recipientInfo : RecipientInformation;
-    address : Address;
-    shipperInfo : ShipperInformation;
-    scanEvents : Event[];
-    packageDetails : PackageDetails;
+    trackingNumber: string;
+    shipDate: string;
+    events: string[]; 
+    delivryDate: string;
+    // recipientInfo : RecipientInformation;
+    // address : Address;
+    // shipperInfo : ShipperInformation;
+    // scanEvents : Event[];
+    // packageDetails : PackageDetails;
     latesStatusDetails : LatestStatusDetail;
-    scanLocation : ScanLocation;
+    // scanLocation : ScanLocation;
     //scanLocationE : ScanLocation;
 
 }
@@ -103,4 +107,22 @@ export class ScanLocation_ {
         residential:         boolean;
         countryName:         string;
     }
+
+export class OriginLocation {
+    locationContactAndAddress : LocationContactAndAddress;
+}
+
+export class HoldAtLocation { 
+    locationContactAndAddress : LocationContactAndAddress;
+}
+
+export class LastUpdatedDestination {
+    scanLocation : ScanLocation;
+}
+
+export class LocationContactAndAddress {
+    address : ScanLocation
+}
+
+
 

@@ -137,54 +137,77 @@ export class ServiceTracking {
       // return response.data;
 
 
-      console.log('API Response:', response.data);
+      //console.log('API Response:', response.data);
+      const output = response.data.output;
+      const completeTrackResults = output.completeTrackResults;
+      const completeTrackResult = completeTrackResults[0];
+      const trackResults = completeTrackResult.trackResults;
+      const firstResult = trackResults[0];
+      const Events = firstResult.scanEvents;
+      const firstEvent = Events[0];
+      const latestD = firstResult.latestStatusDetail;
+      const firstLatest = latestD[0];
 
-      if (response.data.status === 'success') {
-        const completeTrackResults = response.data.data.output.completeTrackResults;
+
+
+
+      const trackResult : TrackResult = {
+        trackingNumber: completeTrackResult.trackingNumber,
+        shipDate: firstResult,
+        events: firstEvent,
+        delivryDate: response.data["output"],
+        latesStatusDetails: firstLatest
+      };
+
+
+      return trackResult;
+      // if (response.data.status === 'success') {
+      //   const completeTrackResults = response.data.data.output.completeTrackResults;
   
-        // Log the structure of completeTrackResults
-        console.log('completeTrackResults:', completeTrackResults);
+      //   // Log the structure of completeTrackResults
+      //   console.log('completeTrackResults:', completeTrackResults);
   
-        if (completeTrackResults && completeTrackResults.length > 0) {
-          const trackingResultData = completeTrackResults[0];
+      //   if (completeTrackResults && completeTrackResults.length > 0) {
+      //     const trackingResultData = completeTrackResults[0];
   
-          // Log the extracted trackingResultData
-          console.log('trackingResultData:', trackingResultData);
+      //     // Log the extracted trackingResultData
+      //     console.log('trackingResultData:', trackingResultData);
   
-          // Access nested data within trackingResultData
-          const shipperInformation = trackingResultData.shipperInformation;
-          const recipientInformation = trackingResultData.recipientInformation;
-          const latestStatusDetail = trackingResultData.latestStatusDetail;
+      //     // Access nested data within trackingResultData
+      //     const shipperInformation = trackingResultData.shipperInformation;
+      //     const recipientInformation = trackingResultData.recipientInformation;
+      //     const latestStatusDetail = trackingResultData.latestStatusDetail;
   
-          // Log specific properties within the nested objects for further analysis
-          console.log('shipperInformation:', shipperInformation);
-          console.log('recipientInformation:', recipientInformation);
-          console.log('latestStatusDetail:', latestStatusDetail);
+      //     // Log specific properties within the nested objects for further analysis
+      //     console.log('shipperInformation:', shipperInformation);
+      //     console.log('recipientInformation:', recipientInformation);
+      //     console.log('latestStatusDetail:', latestStatusDetail);
   
-          // Now you can map the data to your DTO objects as needed
-          const trackResult: TrackResult = {
-            scanEvents: Array.isArray(trackingResultData.scanEvents)
-              ? trackingResultData.scanEvents.map((eventData: any) => this.mapEvent(eventData))
-              : [],
-            shipperInfo: this.mapShipperInfo(shipperInformation),
-            packageDetails: this.mapPackageDetails(trackingResultData.packageDetails),
-            latesStatusDetails: this.mapLatestStatus(latestStatusDetail),
-            recipientInfo: this.mapRecipientInfo(recipientInformation),
-            address: recipientInformation ? this.mapAddress(recipientInformation.address) : {} as Address,
-            scanLocation: latestStatusDetail ? this.mapScanLocation(latestStatusDetail.scanLocation) : {} as ScanLocation,
-          };
+      //     // Now you can map the data to your DTO objects as needed
+      //     const trackResult: TrackResult = {
+      //       scanEvents: Array.isArray(trackingResultData.scanEvents)
+      //         ? trackingResultData.scanEvents.map((eventData: any) => this.mapEvent(eventData))
+      //         : [],
+      //       shipperInfo: this.mapShipperInfo(shipperInformation),
+      //       packageDetails: this.mapPackageDetails(trackingResultData.packageDetails),
+      //       latesStatusDetails: this.mapLatestStatus(latestStatusDetail),
+      //       recipientInfo: this.mapRecipientInfo(recipientInformation),
+      //       address: recipientInformation ? this.mapAddress(recipientInformation.address) : {} as Address,
+      //       scanLocation: latestStatusDetail ? this.mapScanLocation(latestStatusDetail.scanLocation) : {} as ScanLocation,
+      //     };
    
-          console.log('Track Result:', trackResult);
-          return trackResult;
-        } else {
-          console.error('Error: No completeTrackResults found in the API response.');
-          throw new Error('No completeTrackResults found in the API response.');
-        }
-      } else {
-        // Handle the error response
-        console.error('Error:', response.data.message);
-        throw new Error(response.data.message);
-      }
+      //     console.log('Track Result:', trackResult);
+      //     return response.data;
+      //   } else {
+      //     console.error('Error: No completeTrackResults found in the API response.');
+      //     throw new Error('No completeTrackResults found in the API response.');
+      //   }
+      // } else {
+      //   // Handle the error response
+      //   console.error('Error:', response.data.message);
+      //   throw new Error(response.data.message);
+      // }
+
 
     } catch (error) {
       console.error('Error:', error.message);
