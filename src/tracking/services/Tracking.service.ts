@@ -141,12 +141,7 @@ export class ServiceTracking {
       const completeTrackResult = completeTrackResults[0];
       const trackResults = completeTrackResult.trackResults;
       const firstResult = trackResults[0];
-
-
-      const Events = firstResult.scanEvents;
-      const firstEvent = Events[0];
-      const latestD = firstResult.latestStatusDetail;
-      const firstLatest = latestD[0];
+      const events : Event[] = firstResult.scanEvents;
 
 
       const packageDetails = firstResult.packageDetails;
@@ -155,15 +150,28 @@ export class ServiceTracking {
       const weights : Weight[] = weightAndDimensions.weight
       const dimensions  : Dimension[] = weightAndDimensions.dimensions
 
+      console.log(events[0].date)
+
+      const shipDate = events.find(event => event.eventType == "PU").date;
+      const actualDelivery = events.find(event => event.eventType == "HP").date;
+      const standardTransitTimeWindow = firstResult.standardTransitTimeWindow.window.ends;
+
+
       const pd : PackageDetails = {
         count: count,
         weight: weights.find(w => w.unit == "KG"),
-        dimension: dimensions.find(w => w.units == "CM")
+        dimension: dimensions.find(w => w.units == "CM"),
+        packaging: packageDetails.packagingDescription.description
       }
+
 
       const trackResult : TrackResult = {
         trackingNumber: completeTrackResult.trackingNumber,
-        packageDetails: pd
+        packageDetails: pd,
+        shipDate: shipDate,
+        actualDelivery: actualDelivery,
+        standardTransitTimeWindow: standardTransitTimeWindow,
+        events: events
       };
 
 
