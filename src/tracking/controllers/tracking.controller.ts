@@ -3,7 +3,7 @@ import { ServiceTracking } from '../services/Tracking.service'
 import { Observable } from 'rxjs';
 import { Console } from 'console';
 import { TrackingRequest } from '../models/trackingrequest.model';
-import { TrackResult } from '../models/latestStatusDetail.dto';
+import { TrackResult } from '../models/tracking.dto';
 
 @Controller('tracking')
 export class ControllerTracking {

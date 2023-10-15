@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import axios from 'axios'
 import { Observable, catchError, throwError } from 'rxjs';
 import { TrackingRequest } from '../models/trackingrequest.model';
-import { LatestStatusDetail, RecipientInformation, TrackResult, Event, Address, ShipperInformation, PackageDetails, ScanLocation, PackagingDescription, WeightAndDimensions, ScanLocation_ } from '../models/latestStatusDetail.dto';
+import { LatestStatusDetail, RecipientInformation, TrackResult, Event, Address, ShipperInformation, PackageDetails, ScanLocation, PackagingDescription, WeightAndDimensions, ScanLocation_, Weight, Dimension } from '../models/tracking.dto';
 import { response } from 'express';
 
 @Injectable()
@@ -32,8 +32,6 @@ export class ServiceTracking {
       throw new Error('Failed to fetch container tracking information');
      }
   }
-
-  
 
   async createTracking(): Promise<any> {
     const url = this.trackingApiBaseUrl2;
@@ -143,20 +141,29 @@ export class ServiceTracking {
       const completeTrackResult = completeTrackResults[0];
       const trackResults = completeTrackResult.trackResults;
       const firstResult = trackResults[0];
+
+
       const Events = firstResult.scanEvents;
       const firstEvent = Events[0];
       const latestD = firstResult.latestStatusDetail;
       const firstLatest = latestD[0];
 
 
+      const packageDetails = firstResult.packageDetails;
+      const count = packageDetails.count;
+      const weightAndDimensions = packageDetails.weightAndDimensions
+      const weights : Weight[] = weightAndDimensions.weight
+      const dimensions  : Dimension[] = weightAndDimensions.dimensions
 
+      const pd : PackageDetails = {
+        count: count,
+        weight: weights.find(w => w.unit == "KG"),
+        dimension: dimensions.find(w => w.units == "CM")
+      }
 
       const trackResult : TrackResult = {
         trackingNumber: completeTrackResult.trackingNumber,
-        shipDate: firstResult,
-        events: firstEvent,
-        delivryDate: response.data["output"],
-        latesStatusDetails: firstLatest
+        packageDetails: pd
       };
 
 
@@ -215,149 +222,148 @@ export class ServiceTracking {
     }
   }
 
+  // private mapEvent(eventData: any): Event {
+  //   const scanLocation_: ScanLocation = eventData.scanLocation ? this.mapScanLocation(eventData.scanLocation) : {} as ScanLocation;
 
-  private mapEvent(eventData: any): Event {
-    const scanLocation_: ScanLocation = eventData.scanLocation ? this.mapScanLocation(eventData.scanLocation) : {} as ScanLocation;
+  //   return {
+  //     date: new Date(eventData.date),
+  //     eventType: eventData.eventType,
+  //     eventDescription: eventData.eventDescription,
+  //     exceptionCode: eventData.exceptionCode,
+  //     exceptionDescription: eventData.exceptionDescription,
+  //     scanLocation: scanLocation_,
+  //     locationId: eventData.locationId,
+  //     locationType: eventData.locationType,
+  //     derivedStatusCode: eventData.derivedStatusCode,
+  //     derivedStatus: eventData.derivedStatus,
+  //   };
+  // }
 
-    return {
-      date: new Date(eventData.date),
-      eventType: eventData.eventType,
-      eventDescription: eventData.eventDescription,
-      exceptionCode: eventData.exceptionCode,
-      exceptionDescription: eventData.exceptionDescription,
-      scanLocation: scanLocation_,
-      locationId: eventData.locationId,
-      locationType: eventData.locationType,
-      derivedStatusCode: eventData.derivedStatusCode,
-      derivedStatus: eventData.derivedStatus,
-    };
-  }
-
-  private mapScanLocation(locationData: any): ScanLocation {
-    if (!locationData) {
-      // Handle the case where locationData is undefined or null
-      return {
-        streetLines: [],
-        city: '',
-        stateOrProvinceCode: '',
-        postalCode: '',
-        countryCode: '',
-        residential: false,
-        countryName: '',
-      };
-    }
+  // private mapScanLocation(locationData: any): ScanLocation {
+  //   if (!locationData) {
+  //     // Handle the case where locationData is undefined or null
+  //     return {
+  //       streetLines: [],
+  //       city: '',
+  //       stateOrProvinceCode: '',
+  //       postalCode: '',
+  //       countryCode: '',
+  //       residential: false,
+  //       countryName: '',
+  //     };
+  //   }
   
-    return {
-      streetLines: locationData.streetLines || [],
-      city: locationData.city || '',
-      stateOrProvinceCode: locationData.stateOrProvinceCode || '',
-      postalCode: locationData.postalCode || '',
-      countryCode: locationData.countryCode || '',
-      residential: locationData.residential || false,
-      countryName: locationData.countryName || '',
-    };
-  }
+  //   return {
+  //     streetLines: locationData.streetLines || [],
+  //     city: locationData.city || '',
+  //     stateOrProvinceCode: locationData.stateOrProvinceCode || '',
+  //     postalCode: locationData.postalCode || '',
+  //     countryCode: locationData.countryCode || '',
+  //     residential: locationData.residential || false,
+  //     countryName: locationData.countryName || '',
+  //   };
+  // }
 
-  private mapPackageDetails(packageData: any): PackageDetails {
-    if (!packageData || !packageData.packagingDescription) {
-      // If packageData or packagingDescription is undefined, return an empty PackageDetails object
-      return {
-        packagingDescription: {} as PackagingDescription,
-        physicalPackagingType: '',
-        sequenceNumber: '',
-        count: '',
-        weightAndDimensions: {} as WeightAndDimensions,
-        packageContent: [],
-      };
-    }
+  // private mapPackageDetails(packageData: any): PackageDetails {
+  //   if (!packageData || !packageData.packagingDescription) {
+  //     // If packageData or packagingDescription is undefined, return an empty PackageDetails object
+  //     return {
+  //       packagingDescription: {} as PackagingDescription,
+  //       physicalPackagingType: '',
+  //       sequenceNumber: '',
+  //       count: '',
+  //       weightAndDimensions: {} as WeightAndDimensions,
+  //       packageContent: [],
+  //     };
+  //   }
   
-    const packagingDescription: PackagingDescription = {
-      type: packageData.packagingDescription.type,
-      description: packageData.packagingDescription.description,
-    };
+  //   const packagingDescription: PackagingDescription = {
+  //     type: packageData.packagingDescription.type,
+  //     description: packageData.packagingDescription.description,
+  //   };
   
-    const weightAndDimensions: WeightAndDimensions = {
-      weight: Array.isArray(packageData.weightAndDimensions?.weight)
-        ? packageData.weightAndDimensions.weight.map((weightData: any) => ({
-            value: weightData.value,
-            unit: weightData.unit,
-          }))
-        : [],
-      dimensions: Array.isArray(packageData.weightAndDimensions?.dimensions)
-        ? packageData.weightAndDimensions.dimensions.map((dimensionData: any) => ({
-            length: dimensionData.length,
-            width: dimensionData.width,
-            height: dimensionData.height,
-            units: dimensionData.units,
-          }))
-        : [],
-    };
+  //   const weightAndDimensions: WeightAndDimensions = {
+  //     weight: Array.isArray(packageData.weightAndDimensions?.weight)
+  //       ? packageData.weightAndDimensions.weight.map((weightData: any) => ({
+  //           value: weightData.value,
+  //           unit: weightData.unit,
+  //         }))
+  //       : [],
+  //     dimensions: Array.isArray(packageData.weightAndDimensions?.dimensions)
+  //       ? packageData.weightAndDimensions.dimensions.map((dimensionData: any) => ({
+  //           length: dimensionData.length,
+  //           width: dimensionData.width,
+  //           height: dimensionData.height,
+  //           units: dimensionData.units,
+  //         }))
+  //       : [],
+  //   };
   
-    return {
-      packagingDescription,
-      physicalPackagingType: packageData.physicalPackagingType || '',
-      sequenceNumber: packageData.sequenceNumber || '',
-      count: packageData.count || '',
-      weightAndDimensions,
-      packageContent: Array.isArray(packageData.packageContent) ? packageData.packageContent : [],
-    };
-  }
+  //   return {
+  //     packagingDescription,
+  //     physicalPackagingType: packageData.physicalPackagingType || '',
+  //     sequenceNumber: packageData.sequenceNumber || '',
+  //     count: packageData.count || '',
+  //     weightAndDimensions,
+  //     packageContent: Array.isArray(packageData.packageContent) ? packageData.packageContent : [],
+  //   };
+  // }
 
-  private mapLatestStatus(statusData: any): LatestStatusDetail {
+  // private mapLatestStatus(statusData: any): LatestStatusDetail {
 
-    if (!statusData || !statusData.scanLocation) {
-      // Handle the case where statusData or scanLocation is undefined or null
-      return {
-        code: '',
-        derivedCode: '',
-        statusByLocale: '',
-        description: '',
-        scanLocation: {} as ScanLocation,
-      };
-    }
+  //   if (!statusData || !statusData.scanLocation) {
+  //     // Handle the case where statusData or scanLocation is undefined or null
+  //     return {
+  //       code: '',
+  //       derivedCode: '',
+  //       statusByLocale: '',
+  //       description: '',
+  //       scanLocation: {} as ScanLocation,
+  //     };
+  //   }
 
-    const scanLocation: ScanLocation = statusData.scanLocation ? this.mapScanLocation(statusData.scanLocation) : {} as ScanLocation;
+  //   const scanLocation: ScanLocation = statusData.scanLocation ? this.mapScanLocation(statusData.scanLocation) : {} as ScanLocation;
 
-    return {
-      code: statusData.code,
-      derivedCode: statusData.derivedCode,
-      statusByLocale: statusData.statusByLocale,
-      description: statusData.description,
-      scanLocation: scanLocation,
-    };
-  }
+  //   return {
+  //     code: statusData.code,
+  //     derivedCode: statusData.derivedCode,
+  //     statusByLocale: statusData.statusByLocale,
+  //     description: statusData.description,
+  //     scanLocation: scanLocation,
+  //   };
+  // }
 
 
-  private mapRecipientInfo(recipientData: any): RecipientInformation {
-    if (!recipientData || !recipientData.address) {
-      return { address: {} as Address };
-    }
-    return {
-      address: this.mapAddress(recipientData.address),
-    };
-  }
+  // private mapRecipientInfo(recipientData: any): RecipientInformation {
+  //   if (!recipientData || !recipientData.address) {
+  //     return { address: {} as Address };
+  //   }
+  //   return {
+  //     address: this.mapAddress(recipientData.address),
+  //   };
+  // }
 
-  private mapShipperInfo(shipperData: any): ShipperInformation {
-    if (!shipperData || !shipperData.address) {
-      return { address: {} as Address };
-    }
-    return {
-      address: this.mapAddress(shipperData.address),
-    };
-  }
+  // private mapShipperInfo(shipperData: any): ShipperInformation {
+  //   if (!shipperData || !shipperData.address) {
+  //     return { address: {} as Address };
+  //   }
+  //   return {
+  //     address: this.mapAddress(shipperData.address),
+  //   };
+  // }
 
-  private mapAddress(addressData: any): Address {
-    if (!addressData) {
-      return {} as Address;
-    }
-    return {
-      city: addressData.city,
-      stateOrProvinceCode: addressData.stateOrProvinceCode,
-      countryCode: addressData.countryCode,
-      residential: addressData.residential,
-      countryName: addressData.countryName,
-    };
-  }
+  // private mapAddress(addressData: any): Address {
+  //   if (!addressData) {
+  //     return {} as Address;
+  //   }
+  //   return {
+  //     city: addressData.city,
+  //     stateOrProvinceCode: addressData.stateOrProvinceCode,
+  //     countryCode: addressData.countryCode,
+  //     residential: addressData.residential,
+  //     countryName: addressData.countryName,
+  //   };
+  // }
   
 
   

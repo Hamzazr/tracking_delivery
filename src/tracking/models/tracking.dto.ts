@@ -1,18 +1,6 @@
 export class TrackResult{
-
     trackingNumber: string;
-    shipDate: string;
-    events: string[]; 
-    delivryDate: string;
-    // recipientInfo : RecipientInformation;
-    // address : Address;
-    // shipperInfo : ShipperInformation;
-    // scanEvents : Event[];
-    // packageDetails : PackageDetails;
-    latesStatusDetails : LatestStatusDetail;
-    // scanLocation : ScanLocation;
-    //scanLocationE : ScanLocation;
-
+    packageDetails : PackageDetails;
 }
 
 
@@ -56,18 +44,12 @@ export class ScanLocation {
     countryName:         string;
 }
 
-
-
-
-
 export class PackageDetails {
-        packagingDescription:  PackagingDescription;
-        physicalPackagingType: string;
-        sequenceNumber:        string;
-        count:                 string;
-        weightAndDimensions:   WeightAndDimensions;
-        packageContent:        any[];
-    }
+        count:  string= "";
+        weight:   Weight = null;
+        dimension:   Dimension = null;
+
+}
     
     export class PackagingDescription {
         type:        string;
