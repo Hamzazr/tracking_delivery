@@ -1,17 +1,27 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios'
-import { Observable, catchError, throwError } from 'rxjs';
+import { Observable, catchError, from, switchMap, throwError } from 'rxjs';
 import { TrackingRequest } from '../models/trackingrequest.model';
-import { LatestStatusDetail, RecipientInformation, TrackResult, Event, Address, ShipperInformation, PackageDetails, ScanLocation, PackagingDescription, WeightAndDimensions, ScanLocation_, Weight, Dimension } from '../models/tracking.dto';
+import { LatestStatusDetail, RecipientInformation, TrackResult, Event, Address, ShipperInformation, PackageDetails, ScanLocation, PackagingDescription, WeightAndDimensions, Weight, Dimension } from '../models/tracking.dto';
 import { response } from 'express';
+import { TrackingEntity } from '../models/tracking.entity';
+import { Tracking } from '../models/tracking.interface';
+import { InjectRepository } from '@nestjs/typeorm';
+import { FindOneOptions, Repository, Transaction } from 'typeorm';
+import { PackageDetailsEntity } from '../models/packagedetail.entity';
 
 @Injectable()
 export class ServiceTracking {
 
   private readonly trackingApiBaseUrl = 'https://api.ship24.com/public/v1/trackers/search';
   private readonly trackingApiBaseUrl2 = 'https://api.ship24.com/public/v1/trackers/track';
-  
-  
+
+  constructor(
+    @InjectRepository(TrackingEntity) private readonly trackingRepository: Repository<TrackingEntity>,
+    @InjectRepository(PackageDetailsEntity) private readonly packageDetailsRepository: Repository<PackageDetailsEntity>
+
+  ) { }
+
   private readonly apiKey = 'apik_87txZ4aJ4bVGPDB3OOxwtVZnRinSko';
   //private readonly apiKey2 = 'apik_L0DrgEZRznI9uKDn9XS54VYoj1c9Pm';
 
@@ -27,10 +37,10 @@ export class ServiceTracking {
       });
       return response.data;
     } catch (error) {
-      
+
       console.error('API Error:', error.response?.status, error.response?.data);
       throw new Error('Failed to fetch container tracking information');
-     }
+    }
   }
 
   async createTracking(): Promise<any> {
@@ -61,45 +71,63 @@ export class ServiceTracking {
 
     };
 
-    try{
-    const response = await axios.post(url, requestData, {
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-        'Authorization': `Bearer ${this.apiKey}`
-      },
-    });
+    try {
+      const response = await axios.post(url, requestData, {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Authorization': `Bearer ${this.apiKey}`
+        },
+      });
       return response.data;
 
     } catch (error) {
       console.error('API Error:', error.response?.status, error.response?.data);
       throw new Error('Failed to create tracking');
     }
-       
-       
+
+
   }
 
-  async authToken(){
-      const formData = new URLSearchParams();
-      formData.append('grant_type', 'client_credentials');
-      formData.append('client_id', 'l7bfea77bc57c942ec915617cfc67456fd');
-      formData.append('client_secret', '95a03e4e16e649de9d3be8e468a992a4');
-  
-      try {
-        const response = await axios.post('https://apis-sandbox.fedex.com/oauth/token', formData, {
-          
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          }
-        })
-        console.log('Response:', response.data);
-        return response.data ["access_token"] ;
-    }catch(error){
+  create(trackEntity: TrackingEntity): Observable<Tracking> {
+    return from(this.trackingRepository.save(trackEntity));
+  }
+
+  findOne(idTracking: number): Observable<Tracking> {
+    const options: FindOneOptions<TrackingEntity> = {
+      where: { idTracking },
+    };
+
+    return from(this.trackingRepository.findOne(options));
+  }
+
+  updateOne(id: number, trackingEntity: TrackingEntity): Observable<Tracking> {
+    return from(this.trackingRepository.update(id, trackingEntity)).pipe(
+      switchMap(() => this.findOne(id))
+    )
+  }
+
+  async authToken() {
+    const formData = new URLSearchParams();
+    formData.append('grant_type', 'client_credentials');
+    formData.append('client_id', 'l7bfea77bc57c942ec915617cfc67456fd');
+    formData.append('client_secret', '95a03e4e16e649de9d3be8e468a992a4');
+
+    try {
+      const response = await axios.post('https://apis-sandbox.fedex.com/oauth/token', formData, {
+
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        }
+      })
+      console.log('Response:', response.data);
+      return response.data["access_token"];
+    } catch (error) {
       console.error('Error:', error.message);
       return "";
     }
   }
 
-  async trackShipment(trackingNumbers: TrackingRequest) : Promise<TrackResult> {
+  async trackShipment(trackingNumbers: TrackingRequest): Promise<TrackResult> {
     try {
 
       const datatoken = await this.authToken();
@@ -119,8 +147,8 @@ export class ServiceTracking {
       //   scanEvents: Array.isArray(response.data.scanEvents)
       //   ? response.data.scanEvents.map((eventData: any) => this.mapEvent(eventData))
       //   : [],
-        
-      
+
+
       //   shipperInfo : this.mapShipperInfo(response.data.shipperInformation) ,
       //   packageDetails : this.mapPackageDetails(response.data.packageDetails) ,
       //   latesStatusDetails : this.mapLatestStatus(response.data.latestStatusDetail) ,
@@ -130,7 +158,7 @@ export class ServiceTracking {
       //   //scanLocationE: response.data.scanLocationE ? this.mapScanLocation(response.data.scanLocationE) : {} as ScanLocation
 
       // }
-      
+
       // console.log(trackResult)
       // return response.data;
 
@@ -141,14 +169,16 @@ export class ServiceTracking {
       const completeTrackResult = completeTrackResults[0];
       const trackResults = completeTrackResult.trackResults;
       const firstResult = trackResults[0];
-      const events : Event[] = firstResult.scanEvents;
+      const events: Event[] = firstResult.scanEvents;
+      const shipperInformation = firstResult.shipperInformation;
+      const recipientInformation = firstResult.shipperInformation;
 
 
       const packageDetails = firstResult.packageDetails;
       const count = packageDetails.count;
       const weightAndDimensions = packageDetails.weightAndDimensions
-      const weights : Weight[] = weightAndDimensions.weight
-      const dimensions  : Dimension[] = weightAndDimensions.dimensions
+      const weights: Weight[] = weightAndDimensions.weight
+      const dimensions: Dimension[] = weightAndDimensions.dimensions
 
       console.log(events[0].date)
 
@@ -157,7 +187,7 @@ export class ServiceTracking {
       const standardTransitTimeWindow = firstResult.standardTransitTimeWindow.window.ends;
 
 
-      const pd : PackageDetails = {
+      const pd: PackageDetails = {
         count: count,
         weight: weights.find(w => w.unit == "KG"),
         dimension: dimensions.find(w => w.units == "CM"),
@@ -165,12 +195,14 @@ export class ServiceTracking {
       }
 
 
-      const trackResult : TrackResult = {
+      const trackResult: TrackResult = {
         trackingNumber: completeTrackResult.trackingNumber,
         packageDetails: pd,
-        shipDate: shipDate,
+        shippingDate: shipDate,
         actualDelivery: actualDelivery,
         standardTransitTimeWindow: standardTransitTimeWindow,
+        shipperAddress: shipperInformation.address.countryName+ "("+shipperInformation.address.countryCode+")" + ", " + shipperInformation.address.city + ", " + shipperInformation.address.stateOrProvinceCode,
+        recipientAddress: recipientInformation.address.countryName+ "("+recipientInformation.address.countryCode+")" + ", " + recipientInformation.address.city + ", " + recipientInformation.address.stateOrProvinceCode,
         events: events
       };
 
@@ -178,26 +210,26 @@ export class ServiceTracking {
       return trackResult;
       // if (response.data.status === 'success') {
       //   const completeTrackResults = response.data.data.output.completeTrackResults;
-  
+
       //   // Log the structure of completeTrackResults
       //   console.log('completeTrackResults:', completeTrackResults);
-  
+
       //   if (completeTrackResults && completeTrackResults.length > 0) {
       //     const trackingResultData = completeTrackResults[0];
-  
+
       //     // Log the extracted trackingResultData
       //     console.log('trackingResultData:', trackingResultData);
-  
+
       //     // Access nested data within trackingResultData
       //     const shipperInformation = trackingResultData.shipperInformation;
       //     const recipientInformation = trackingResultData.recipientInformation;
       //     const latestStatusDetail = trackingResultData.latestStatusDetail;
-  
+
       //     // Log specific properties within the nested objects for further analysis
       //     console.log('shipperInformation:', shipperInformation);
       //     console.log('recipientInformation:', recipientInformation);
       //     console.log('latestStatusDetail:', latestStatusDetail);
-  
+
       //     // Now you can map the data to your DTO objects as needed
       //     const trackResult: TrackResult = {
       //       scanEvents: Array.isArray(trackingResultData.scanEvents)
@@ -210,7 +242,7 @@ export class ServiceTracking {
       //       address: recipientInformation ? this.mapAddress(recipientInformation.address) : {} as Address,
       //       scanLocation: latestStatusDetail ? this.mapScanLocation(latestStatusDetail.scanLocation) : {} as ScanLocation,
       //     };
-   
+
       //     console.log('Track Result:', trackResult);
       //     return response.data;
       //   } else {
@@ -260,7 +292,7 @@ export class ServiceTracking {
   //       countryName: '',
   //     };
   //   }
-  
+
   //   return {
   //     streetLines: locationData.streetLines || [],
   //     city: locationData.city || '',
@@ -284,12 +316,12 @@ export class ServiceTracking {
   //       packageContent: [],
   //     };
   //   }
-  
+
   //   const packagingDescription: PackagingDescription = {
   //     type: packageData.packagingDescription.type,
   //     description: packageData.packagingDescription.description,
   //   };
-  
+
   //   const weightAndDimensions: WeightAndDimensions = {
   //     weight: Array.isArray(packageData.weightAndDimensions?.weight)
   //       ? packageData.weightAndDimensions.weight.map((weightData: any) => ({
@@ -306,7 +338,7 @@ export class ServiceTracking {
   //         }))
   //       : [],
   //   };
-  
+
   //   return {
   //     packagingDescription,
   //     physicalPackagingType: packageData.physicalPackagingType || '',
@@ -372,8 +404,8 @@ export class ServiceTracking {
   //     countryName: addressData.countryName,
   //   };
   // }
-  
 
-  
-    
+
+
+
 }

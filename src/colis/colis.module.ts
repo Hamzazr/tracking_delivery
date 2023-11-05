@@ -18,6 +18,6 @@ import { ColisService } from './services/colis.service';
         TransporteurModule
 ],
     providers: [ColisService],
-    controllers: [ ColisController]
+    controllers: [ColisController]
 })
 export class ColisModule {}

@@ -1,47 +1,42 @@
-import { UserEntity } from "src/user/models/user.entity";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { IsEnum } from 'class-validator';
-import { TrackingStatus } from "./trackingstatus.enum";
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { TrackingEventEntity } from "./event.entity";
+import { PackageDetailsEntity } from "./packagedetail.entity";
 
 
 @Entity()
 export class TrackingEntity {
+
     @PrimaryGeneratedColumn()
-    id_Tracking: number;
+    idTracking: number;
 
     @Column({unique: true})
-    Tracking_Number: string;
+    trackingNumber: string;
 
     @Column()
-    Origin_Country: string;
-
-    @Column({nullable: true})
-    Destination_Country: string;
-
-    @Column({nullable: true})
-    Recipient_PostCode: number;
-
-    @Column({nullable: true})
-    shippingDate: Date;
-
-    @Column({nullable: true})
-    Title: string;
-
-    @Column({nullable: true})
-    OrderNumber: number;
-
-    @Column({nullable: true})
-    PhoneNumber: string;
-
-    @Column({nullable: true})
-    RecipientEmail: string;
+    shipperAddress: string;
 
     @Column()
-    @IsEnum(TrackingStatus)
-    status: TrackingStatus;
-    
+    recipientAddress: string;
+
     @Column({nullable: true})
-    trackingstatus: string;
+    shippingDate: string;
+
+    @Column({nullable: true})
+    actualDelivery: string;
+
+    @Column({nullable: true})
+    standardTransitTimeWindow: string;
+
+    @OneToOne(() => PackageDetailsEntity, {
+        cascade: true,
+    })
+    @JoinColumn()
+    packageDetails: PackageDetailsEntity
+
+    @OneToMany(() => TrackingEventEntity, (event) => event.tracking, {
+        cascade: true,
+    })
+    events: TrackingEventEntity[];
 
     
 }
