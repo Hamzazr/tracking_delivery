@@ -27,25 +27,28 @@ import { PackageDetailModule } from './tracking/models/packagedetail.model';
 @Module({
   imports: [
     ConfigModule.forRoot({isGlobal: true}), 
-    // TypeOrmModule.forRoot( {
-    //   type: 'postgres',
-    //   url: process.env.DATABASE_URL,
-    //   autoLoadEntities: true,
-    //   password:'l7H4D5di6Bk_LxvuCcp9PRlaBd_WHBLz',
-    //   synchronize: true,
-    // }),
-    TypeOrmModule.forRoot({
+    /** Hadi Dyalk */
+    TypeOrmModule.forRoot( {
       type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      password: '123456',
-      username: 'postgres',
-      entities: [],
-      database: 'track',
-      synchronize: true,
+      url: process.env.DATABASE_URL,
       autoLoadEntities: true,
-      logging: true,
+      password:'l7H4D5di6Bk_LxvuCcp9PRlaBd_WHBLz',
+      synchronize: true,
     }),
+
+    /** Hadi Dyali */
+    // TypeOrmModule.forRoot({
+    //   type: 'postgres',
+    //   host: 'localhost',
+    //   port: 5432,
+    //   password: '123456',
+    //   username: 'postgres',
+    //   entities: [],
+    //   database: 'track',
+    //   synchronize: true,
+    //   autoLoadEntities: true,
+    //   logging: true,
+    // }),
     UserModule,
     AuthModule,
     ColisModule,
