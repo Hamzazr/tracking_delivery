@@ -1,7 +1,7 @@
 
 export interface PackageDetails {
   id: number;
-  count: string;
+  count: number;
   weightValue: number;
   weightUnit: string;
   length: number;
