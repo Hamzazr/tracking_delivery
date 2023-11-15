@@ -7,7 +7,7 @@ import { TrackingStatus } from "./trackingstatus.enum";
 @Entity()
 export class TrackingEntity {
     @PrimaryGeneratedColumn()
-    id_Tracking: number;
+    id_colis: number;
 
     @Column({unique: true})
     Tracking_Number: string;
@@ -33,6 +33,8 @@ export class TrackingEntity {
     @Column({nullable: true})
     PhoneNumber: string;
 
+    
+
     @Column({nullable: true})
     RecipientEmail: string;
 
@@ -40,8 +42,7 @@ export class TrackingEntity {
     @IsEnum(TrackingStatus)
     status: TrackingStatus;
     
-    @Column({nullable: true})
-    trackingstatus: string;
+ 
 
     
 }

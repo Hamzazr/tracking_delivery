@@ -30,7 +30,7 @@ import { RecipientModule } from './recipient/recipient.module';
       type: 'postgres',
       url: process.env.DATABASE_URL,
       autoLoadEntities: true,
-      password:'l7H4D5di6Bk_LxvuCcp9PRlaBd_WHBLz',
+      password:'M8Ve6-v_rJFsCZJAVTSFWk5ZeCaMbO35',
       synchronize: true,
     }),
     

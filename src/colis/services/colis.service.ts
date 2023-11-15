@@ -60,7 +60,7 @@ export class ColisService {
     findOne(id_colis: number): Observable<Colis> {
         const options: FindOneOptions<ColisEntity> = {
           where: { id_colis },
-          relations: ['sender'],
+          relations: ['sender'], 
         };
       
         return from(this.colisRepository.findOne(options));

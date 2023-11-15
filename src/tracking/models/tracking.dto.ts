@@ -4,6 +4,8 @@ export class TrackResult{
     shipDate: string;
     actualDelivery: string = "";
     standardTransitTimeWindow: string = "";
+    shipper: ShipperInformation;
+    recipient: RecipientInformation;
     events: Event[];
 }
 
