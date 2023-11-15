@@ -24,6 +24,7 @@ export class ColisController {
 
         return this.colisService.create(user, colis);
     }
+    
 //  ------------------------------------------------------------
   
     // @Get()
@@ -39,7 +40,6 @@ export class ColisController {
     findOne(@Param('id') id: number): Observable<Colis> {
         return this.colisService.findOne(id);
     }
- 
     
     @Get()
     index(
@@ -49,7 +49,6 @@ export class ColisController {
         limit = limit > 100 ? 100 : limit; 
             return this.colisService.paginateAll({ page: Number(page), limit: Number(limit), route: 'http://localhost:3000/api/colis' });
     }
-
 
     @UseGuards(JwtAuthGuard, UserIsClientGuard)
     @Put(':id')
@@ -62,8 +61,5 @@ export class ColisController {
     deleteOne(@Param('id') id: number): Observable<any> {
         return this.colisService.deleteOne(id);
     }
-
-    
-
 
 } 

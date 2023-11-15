@@ -20,12 +20,14 @@ import { RecipientService } from './recipient/services/recipient/recipient.servi
 import { TransporteurModule } from './transporteur/transporteur.module';
 import { ColisModule } from './colis/colis.module';
 import { RecipientModule } from './recipient/recipient.module';
-
+import { TrackingEventModule } from './tracking/models/event.model';
+import { PackageDetailModule } from './tracking/models/packagedetail.model';
 
 
 @Module({
   imports: [
     ConfigModule.forRoot({isGlobal: true}), 
+    /** Hadi Dyalk */
     TypeOrmModule.forRoot( {
       type: 'postgres',
       url: process.env.DATABASE_URL,
@@ -33,16 +35,28 @@ import { RecipientModule } from './recipient/recipient.module';
       password:'M8Ve6-v_rJFsCZJAVTSFWk5ZeCaMbO35',
       synchronize: true,
     }),
-    
+
+    /** Hadi Dyali */
+    // TypeOrmModule.forRoot({
+    //   type: 'postgres',
+    //   host: 'localhost',
+    //   port: 5432,
+    //   password: '123456',
+    //   username: 'postgres',
+    //   entities: [],
+    //   database: 'track',
+    //   synchronize: true,
+    //   autoLoadEntities: true,
+    //   logging: true,
+    // }),
     UserModule,
     AuthModule,
     ColisModule,
+    RecipientModule,
     TransporteurModule,
     TrackingModule,
-    RecipientModule,
-    
- 
-    
+    TrackingEventModule,
+    PackageDetailModule,
   ],
   controllers: [AppController],
   providers: [AppService]
