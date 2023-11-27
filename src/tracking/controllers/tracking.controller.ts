@@ -1,12 +1,7 @@
 import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, Request, UseGuards } from '@nestjs/common';
 import { ServiceTracking } from '../services/Tracking.service'
 import { Observable } from 'rxjs';
-import { Console } from 'console';
 import { TrackingRequest } from '../models/trackingrequest.model';
-import { TrackResult } from '../models/tracking.dto';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-guard';
-import { ColisEntity } from 'src/colis/models/colis.entity';
-import { Colis } from 'src/colis/models/colis.interface';
 import { TrackingEntity } from '../models/tracking.entity';
 import { Tracking } from '../models/tracking.interface';
 
@@ -59,6 +54,12 @@ export class ControllerTracking {
       console.log(error)
       return { status: 'error', data: null };
     }
+  }
+
+
+  @Get('token')
+  async getAuthToken() {
+    return await this.trackingService.authToken();
   }
 
   // @Post()

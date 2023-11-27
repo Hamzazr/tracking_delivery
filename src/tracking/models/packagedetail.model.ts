@@ -5,7 +5,7 @@ import { UserModule } from "src/user/user.module";
 import { ControllerTracking } from "../controllers/tracking.controller";
 import { ServiceTracking } from "../services/Tracking.service";
 import { PackageDetailsEntity } from "./packagedetail.entity";
-import { TrackingModule } from "../tracking.module";
+import { TrackingModule } from "./tracking.module";
 
 @Module({
     imports: [
