@@ -2,19 +2,14 @@ import { Colis } from "src/colis/models/colis.interface";
 
 export interface Recipient{
  
-    id_recipient?: number;
+    idRecipient?: number;
 
-    first_name?: string;
-
-    last_name?: string;
-
-    email?: string;
+    name?: string;
 
     phone?: string;
 
-    country?: string;
+    email?: string;
 
-    colis?: Colis[];
+    codePostal?: string;
 
-    
 }

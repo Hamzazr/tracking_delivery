@@ -2,31 +2,25 @@ import { ColisEntity } from "src/colis/models/colis.entity";
 import { BeforeInsert, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('recipient_entity')
-export class RecipientEntity{
- 
+export class RecipientEntity {
+
     @PrimaryGeneratedColumn()
-    id_recipient: number;
+    idRecipient: number;
 
-    @Column()
-    first_name: string;
+    @Column({ nullable: true })
+    name: string;
 
-    @Column()
-    last_name: string;
-
-    @Column({unique: true})
-    email: string;
-
-    @Column()
+    @Column({ nullable: true })
     phone: string;
 
-    @Column({nullable: true})
-    country: string;
+    @Column({ nullable: true })
+    email: string;
 
-    @OneToMany(type => ColisEntity, colis => colis.recipient)
+    @Column({ nullable: true })
+    codePostal: string;
+
+    @OneToMany(() => ColisEntity, colis => colis.recipient)
     colis: ColisEntity[];
 
-    @BeforeInsert()
-    emailToLoweCase() {
-        this.email = this.email.toLowerCase();
-    }
+
 }

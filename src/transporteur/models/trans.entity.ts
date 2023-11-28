@@ -2,7 +2,7 @@ import { ColisEntity } from "src/colis/models/colis.entity";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('transporteur_entity')
-export class TransporteurE{
+export class TransporteurE {
 
     @PrimaryGeneratedColumn()
     id: number;
@@ -10,13 +10,13 @@ export class TransporteurE{
     @Column()
     nom: string;
 
-    @Column()
+    @Column({ nullable: true })
     phone: string;
 
-    @Column()
+    @Column({ nullable: true })
     email: string;
 
-    @OneToMany(type => ColisEntity, (colis) => colis.transporteur)
+    @OneToMany(() => ColisEntity, (colis) => colis.transporteur, { nullable: true })
     colis: ColisEntity[];
 
 }

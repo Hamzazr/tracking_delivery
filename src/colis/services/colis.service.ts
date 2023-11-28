@@ -29,17 +29,14 @@ export class ColisService {
     // }
 
     //  ------------------------------------------------------------
-    create(user: UserEntity, colis: ColisEntity): Observable<Colis> {
-        colis.sender = user;
+    create(colis: ColisEntity): Observable<Colis> {
         console.log(colis);
-
         return from(this.colisRepository.save(colis));
-
     }
     //  ------------------------------------------------------------
 
     findAll(): Observable<Colis[]> {
-        return from(this.colisRepository.find({ relations: ['client'] }));
+        return from(this.colisRepository.find({ relations: ['user','recipient','transporteur'] }));
     }
 
     // findByUser(userId: number): Observable<Colis[]> {
@@ -60,7 +57,7 @@ export class ColisService {
     findOne(id_colis: number): Observable<Colis> {
         const options: FindOneOptions<ColisEntity> = {
             where: { id_colis },
-            relations: ['sender'],
+            relations: ['user','recipient','transporteur'],
         };
 
         return from(this.colisRepository.findOne(options));
@@ -68,8 +65,7 @@ export class ColisService {
 
     paginateAll(options: IPaginationOptions): Observable<Pagination<Colis>> {
         return from(paginate<Colis>(this.colisRepository, options, {
-
-            relations: ['sender']
+            relations: ['user','recipient','transporteur']
 
         })).pipe(
             map((colis: Pagination<Colis>) => colis)
@@ -81,7 +77,7 @@ export class ColisService {
             switchMap(() => this.findOne(id))
         )
     }
-    //  ------------------------------------------------------------
+
     deleteOne(id: number): Observable<any> {
         return from(this.colisRepository.delete(id));
     }

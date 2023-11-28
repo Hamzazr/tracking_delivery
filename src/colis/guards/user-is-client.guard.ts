@@ -27,7 +27,7 @@ export class UserIsClientGuard implements CanActivate {
                 map((colis: Colis) => {
                     let hasPermission = false;
 
-                    if(user.id === colis.sender.id){
+                    if(user.id === colis.user.id){
                         hasPermission = true;
                     }
 

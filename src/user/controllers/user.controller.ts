@@ -41,15 +41,15 @@ export class UserController {
         return this.userService.findOne(params.id);
     }
 
-    //@UseGuards(JwtAuthGuard, UserIsUserGuard)
-    @Get()
-    index(
-        @Query('page') page: number = 1,
-        @Query('limit') limit: number = 10
-    ): Observable<Pagination<User>> {
-        limit = limit > 100 ? 100 : limit; 
-            return this.userService.paginate({ page: Number(page), limit: Number(limit), route: 'http://localhost:3000/api/users' });
-    }
+    // //@UseGuards(JwtAuthGuard, UserIsUserGuard)
+    // @Get()
+    // index(
+    //     @Query('page') page: number = 1,
+    //     @Query('limit') limit: number = 10
+    // ): Observable<Pagination<User>> {
+    //     limit = limit > 100 ? 100 : limit; 
+    //         return this.userService.paginate({ page: Number(page), limit: Number(limit), route: 'http://localhost:3000/api/users' });
+    // }
  
 
     //@UseGuards(JwtAuthGuard, UserIsUserGuard)

@@ -9,5 +9,4 @@ export interface Transporteur{
 
     email?: String;
 
-    colis?: Colis[];
 }

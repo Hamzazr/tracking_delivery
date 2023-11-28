@@ -16,13 +16,11 @@ export class ColisController {
 
     constructor(private colisService: ColisService) {}
 //  ------------------------------------------------------------
-    @UseGuards(JwtAuthGuard) 
+    // @UseGuards(JwtAuthGuard) 
     @Post()
-    create(@Body()colis: ColisEntity, @Request() req ): Observable<Colis> {
+    create(@Body()colis: ColisEntity, @Request() req): Observable<Colis> {
         
-        const user = req.user;
-
-        return this.colisService.create(user, colis);
+        return this.colisService.create(colis);
     }
     
 //  ------------------------------------------------------------
@@ -50,13 +48,14 @@ export class ColisController {
             return this.colisService.paginateAll({ page: Number(page), limit: Number(limit), route: 'http://localhost:3000/api/colis' });
     }
 
-    @UseGuards(JwtAuthGuard, UserIsClientGuard)
+    // @UseGuards(JwtAuthGuard)
     @Put(':id')
     updateOne(@Param('id') id: number, @Body() colis: ColisEntity): Observable<Colis> {
         return this.colisService.updateOne(Number(id), colis);
     }
+    
 //  ------------------------------------------------------------
-    @UseGuards(JwtAuthGuard, UserIsClientGuard)
+    // @UseGuards(JwtAuthGuard)
     @Delete(':id')
     deleteOne(@Param('id') id: number): Observable<any> {
         return this.colisService.deleteOne(id);

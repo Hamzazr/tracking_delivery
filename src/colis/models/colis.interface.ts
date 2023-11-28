@@ -5,19 +5,14 @@ import { UserEntity } from "src/user/models/user.entity";
 
 export interface Colis {
 
-    id_colis?: number;
-
-    suivi_numero?: number;
-
-    statut?: string;
-
-    description?: string;
-
-    emplacement?: string;
-
+    id_colis: number;
+    trackingNumber?: String;
+    countryOrigin?: String;
+    countryDestination?: String;
+    title?: String;
+    orderNumber?: String;
     transporteur?: Transporteur;
-
     recipient?: Recipient;
+    user?: User;
 
-    sender?: User;
 } 

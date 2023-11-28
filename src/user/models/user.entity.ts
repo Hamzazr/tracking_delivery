@@ -31,8 +31,8 @@ export class UserEntity{
     @Column({select: false}) 
     password: string;
 
-    @OneToMany(type => ColisEntity, colis_ => colis_.sender, { cascade: true , nullable: true})
-    colis: ColisEntity[];
+    @OneToMany(() => ColisEntity, (colis) => colis.user)
+    shippements: ColisEntity[]
 
     // @OneToMany(type => TrackingEntity, shipments => shipments.client)
     // shipment: TrackingEntity[];

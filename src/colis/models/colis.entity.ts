@@ -11,25 +11,31 @@ export class ColisEntity {
     @PrimaryGeneratedColumn()
     id_colis: number;
 
-    @Column({unique: true})
-    suivi_numero: number;
-
     @Column()
-    statut: string; 
+    trackingNumber: string;
 
-    @Column({nullable: true})
-    description: string;
-    
-    @Column({nullable: true})
-    emplacement: string;
+    @Column({ nullable: true })
+    countryOrigin: string;
 
-    @ManyToOne(type => TransporteurE, TransporteurE => TransporteurE.colis, {nullable: true})
-    transporteur : TransporteurE;
+    @Column({ nullable: true })
+    countryDestination: string;
 
-    @ManyToOne(type => RecipientEntity, RecipientEntity => RecipientEntity.colis, {nullable: true})
-    recipient : RecipientEntity;
+    @Column({ nullable: true })
+    title: string;
 
-    @ManyToOne(type => UserEntity, UserEntity => UserEntity.colis)
-    sender : UserEntity; 
-    
+    @Column({ nullable: true })
+    orderNumber: string;
+
+    @ManyToOne(() => TransporteurE, transporteurE => transporteurE.colis, {
+        nullable: true, cascade: true,
+    })
+    transporteur: TransporteurE;
+
+    @ManyToOne(() => RecipientEntity, recipient => recipient.colis, {
+        nullable: true, cascade: true,
+    })
+    recipient: RecipientEntity;
+
+    @ManyToOne(() => UserEntity, (user) => user.shippements)
+    user: UserEntity
 } 

@@ -1,9 +1,10 @@
 import { ColisEntity } from "src/colis/models/colis.entity";
+import { Colis } from "src/colis/models/colis.interface";
 import { TrackingEntity } from "src/tracking/models/tracking.entity";
 
 export interface ColisNotification{
 
-    idNotification: number;
+    idNotification?: number;
     senderContactName: string;
     senderContactEmail: string;
     notifyOnDelivery: boolean;
@@ -11,6 +12,6 @@ export interface ColisNotification{
     notifyOnException: boolean;
     notifyOnTendered: boolean;
     currentResult: boolean;
-    colis: ColisEntity;
+    colis: Colis;
 
 }
